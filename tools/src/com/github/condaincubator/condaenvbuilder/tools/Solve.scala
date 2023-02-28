@@ -216,6 +216,7 @@ private object CondaEnvironment {
       val keys           = c.keys.map(_.toSeq).getOrElse(Seq.empty)
       val nameResult     = c.downField("name").as[String]
       val channelsResult = if (keys.contains("channels")) c.downField("channels").as[Seq[String]] else Right(Seq.empty[String])
+      val platfromsResult = if (keys.contains("platforms")) c.downField("platforms").as[Seq[String]] else Right(Seq.empty[String])
       val dependencies   = c.downField("dependencies").values.toSeq.flatten
       val condaResult: Result[Seq[Requirement]] = {
         val results = dependencies.filterNot(_.isObject).map(_.as[Requirement])
@@ -232,12 +233,14 @@ private object CondaEnvironment {
       for {
         name <- nameResult
         channels <- channelsResult
+        platforms <- platfromsResult
         conda <- condaResult
         pip <- pipResult
       } yield {
         CondaEnvironment(
           name     = name,
           channels = channels,
+          platforms = platforms,
           conda    = conda,
           pip      = pip
         )
