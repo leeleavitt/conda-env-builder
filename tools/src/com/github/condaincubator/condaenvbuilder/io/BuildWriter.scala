@@ -111,12 +111,22 @@ case class BuildWriter(environment: Environment,
 
     val writer = new PrintWriter(Io.toWriter(environmentYaml))
     writer.println(f"name: ${environment.name}")
+    
+    condaStep.foreach { step =>
+      if (step.platforms.nonEmpty) {
+        writer.println("platforms:")
+        step.platforms.foreach { platform => writer.println(f"  - $platform") }
+      }
+    }
+
     condaStep.foreach { step =>
       if (step.channels.nonEmpty) {
         writer.println("channels:")
         step.channels.foreach { channel => writer.println(f"  - $channel") }
       }
     }
+
+
     if (condaStep.isDefined || pipStep.isDefined) {
       writer.println("dependencies:")
     }
